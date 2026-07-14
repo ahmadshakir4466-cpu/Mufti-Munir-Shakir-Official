@@ -1,0 +1,6 @@
+{
+  "name": "Mufti Munir Shakir Official Website",
+  "description": "Bilingual (English & Urdu) Islamic Scholar website for Mufti Munir Shakir.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
