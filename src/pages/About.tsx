@@ -3,7 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import GenericHeader from "../components/layout/GenericHeader";
 import { useLanguage } from "../context/LanguageContext";
 import { useSettings } from "../context/SettingsContext";
-import { supabase } from "../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { Award, BookOpen, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { getDynamicIcon, renderFormattedText } from "../lib/utils";
@@ -116,7 +116,13 @@ export default function About() {
     return <Navigate to="/" replace />;
   }
 
-
+  if (loading && isSupabaseConfigured) {
+    return (
+      <div className="flex justify-center items-center h-[70vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-800"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="pb-20">

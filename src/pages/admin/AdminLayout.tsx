@@ -1,15 +1,21 @@
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { LayoutDashboard, FileText, Video, LogOut, Home, BookOpen, Library, User, Phone, Settings, ListVideo, Book, Gift } from "lucide-react";
+import { LayoutDashboard, FileText, Video, LogOut, Home, BookOpen, Library, User, Phone, Settings, ListVideo, Book, Gift, Menu, X } from "lucide-react";
 
 const ADMIN_UID = "28501153-8038-4e13-86cc-8b400a1b92c7";
 
 export default function AdminLayout() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    // Automatically close sidebar when route changes on mobile
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -73,20 +79,39 @@ export default function AdminLayout() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50 font-sans">
-      <aside className="w-64 bg-primary-900 text-white flex flex-col shadow-xl z-10 sticky top-0 h-screen overflow-y-auto">
-        <div className="p-6 border-b border-primary-800 sticky top-0 bg-primary-900">
+    <div className="flex min-h-screen bg-gray-50 font-sans overflow-x-hidden">
+      {/* Backdrop for mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden transition-opacity" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - fixed drawer on mobile, static on desktop */}
+      <aside className={`
+        fixed inset-y-0 left-0 w-64 bg-primary-900 text-white flex flex-col shadow-xl z-30 
+        transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:h-screen lg:overflow-y-auto
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+      `}>
+        <div className="p-6 border-b border-primary-800 flex items-center justify-between sticky top-0 bg-primary-900 z-10">
           <Link to="/" className="text-xl font-bold flex flex-col">
             <span>Admin Panel</span>
             <span className="text-xs font-normal text-primary-200 mt-1">Mufti Munir Shakir</span>
           </Link>
+          <button 
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-1 text-primary-200 hover:text-white rounded-lg hover:bg-primary-800 transition-colors"
+          >
+            <X size={20} />
+          </button>
         </div>
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {menu.map(item => (
             <Link 
               key={item.path} 
               to={item.path} 
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${location.pathname.startsWith(item.path) ? "bg-primary-800 text-white font-medium" : "text-primary-100 hover:bg-primary-800 hover:text-white"}`}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${location.pathname.startsWith(item.path) ? "bg-primary-800 text-white font-medium" : "text-primary-100 hover:bg-primary-800 hover:text-white"}`}
             >
               {item.icon}
               {item.name}
@@ -100,11 +125,19 @@ export default function AdminLayout() {
            </button>
         </div>
       </aside>
-      <main className="flex-1 bg-gray-50 flex flex-col min-h-screen">
-        <header className="bg-white px-8 py-4 border-b border-gray-200 sticky top-0 z-10">
+
+      {/* Main Content Pane */}
+      <main className="flex-1 bg-gray-50 flex flex-col min-h-screen min-w-0">
+        <header className="bg-white px-6 md:px-8 py-4 border-b border-gray-200 sticky top-0 z-10 flex items-center gap-4 shadow-sm">
+          <button 
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <Menu size={24} />
+          </button>
           <h1 className="text-xl font-bold text-gray-800">Control Panel</h1>
         </header>
-        <div className="p-8 pb-20">
+        <div className="p-4 md:p-8 pb-20">
           <Outlet />
         </div>
       </main>
